@@ -5,13 +5,13 @@ defmodule Realm.SocketAcceptor do
   require Logger
 
   def start_link(args) do
-    GenServer.start_link(__MODULE__, args, name: __MODULE__)
+    Supervisor.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   def init(_args) do
     Logger.debug "Starting #{__MODULE__}"
     children = [
-      worker(Realm.Acceptor, [], [restart: :temporary])
+      worker(Realm.Acceptor, [], restart: :temporary)
     ]
     supervise(children, strategy: :simple_one_for_one)
   end

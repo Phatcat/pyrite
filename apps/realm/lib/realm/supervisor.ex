@@ -23,7 +23,6 @@ defmodule Realm.Supervisor do
 
   def listen(port) do
     {:ok, socket} = :gen_tcp.listen(port, [:binary, active: :once, reuseaddr: true])
-    IO.inspect socket
     Logger.info "Realm is listening to port: #{port}"
     new_acceptor(socket)
   end
