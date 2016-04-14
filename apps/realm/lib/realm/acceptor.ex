@@ -66,6 +66,7 @@ defmodule Realm.Acceptor do
   def handle_info({:tcp, _socket, <<16 :: size(8), msg :: binary>>}, state) do
     Logger.debug "Receiving realmlist request"
     :ok = :inet.setopts(state.socket, [active: :once])
+    realmlist = Application.get_env(:realm, :realmlist)
     realms = Enum.each realmlist, fn r -> [
       <<1 :: unsigned-little-integer-size(32),
         0 :: unsigned-little-integer-size(8),
