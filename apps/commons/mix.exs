@@ -18,7 +18,22 @@ defmodule Commons.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [mod: {Commons, []},
+     applications: needed_apps()]
+  end
+
+  defp needed_apps() do
+    apps = [:logger,
+            :crypto,
+            # Uncomment the database you want to use
+            #:postgrex,
+            #:mariaex,
+            :ecto]
+
+    case Mix.env do
+      :dev -> [:exsync, :sqlite_ecto] ++ apps
+      _ -> apps
+    end
   end
 
   # Dependencies can be Hex packages:
@@ -35,6 +50,15 @@ defmodule Commons.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [{:ecto, "~> 1.1"},
+
+     # Uncomment these based on what database you desire to use.
+     #{:postgrex, "~> 0.11"},  # PostgreSQL
+     #{:mariaex,  "~> 0.7"},   # MySQL/MariaDB
+
+
+     # These are only required on development. No need to import them.
+     {:sqlite_ecto, "~> 1.1", only: :dev},
+     {:exsync, "~> 0.1", only: :dev}]
   end
 end

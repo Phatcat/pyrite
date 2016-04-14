@@ -1,13 +1,10 @@
-defmodule Commons.AuthCodes do
+defmodule Commons.Codes.AuthCodes do
 
-  @doc """
-    This function imports all authentication codes to be sent
-    to the client.
-
-    Usage: `use Commons.AuthCodes, :wow_connect`
-  """
-  def wow_connect do
+  defmacro __using__(_opts) do
     quote do
+      import Commons.Codes.AuthCodes
+
+      # Authentication codes
       @wow_success 0x00
       @wow_fail_unknown0 0x01
       @wow_fail_unknown1 0x02
@@ -27,17 +24,8 @@ defmodule Commons.AuthCodes do
       @wow_fail_locked_enforced 0x10
       @wow_fail_trial_ended 0x11
       @wow_fail_use_battlenet 0x12
-    end
-  end
 
-  @doc """
-    This function imports all commands to be send to the client
-    depending on her request.
-
-    Usage: `use Commons.AuthCodes, :cmd_auth`
-  """
-  def cmd_auth do
-    quote do
+      # Commands
       @cmd_auth_logon_challenge 0x00
       @cmd_auth_logon_proof 0x01
       @cmd_auth_reconnect_challenge 0x02
@@ -45,10 +33,9 @@ defmodule Commons.AuthCodes do
       @cmd_realm_list 0x10
       @cmd_xfer_initiate  0x30
       @cmd_xfer_data 0x31
+
     end
+
   end
-  
-  defmacro __using__(which) when is_atom(which) do
-    apply(__MODULE__, which, [])
-  end
+
 end
