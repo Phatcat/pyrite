@@ -67,8 +67,8 @@ defmodule Realm.Acceptor do
     Logger.debug "Receiving realmlist request"
     :ok = :inet.setopts(state.socket, [active: :once])
     realms = Enum.each realmlist, fn r -> [
-      <<1 :: unsigned-long-integer-size(32),
-        0 :: unsigned-long-integer-size(8),
+      <<1 :: unsigned-little-integer-size(32),
+        0 :: unsigned-little-integer-size(8),
         r.name,
         r.host ++ ":" ++ Integer.to_string(r.port)>>
     ] end
