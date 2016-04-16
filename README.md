@@ -22,3 +22,9 @@ iex -S mix app.start
 
 It should start everything and reload all your modules changes on 
 runtime.
+
+
+## Support
+
+There is no official support for Pyrite, but you can ask questions at:
+`irc.rizon.net` on channel `#pyrite`.
