@@ -5,6 +5,9 @@ defmodule Pyrite.Mixfile do
     [apps_path: "apps",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     source_url: "https://github.com/imetallica/pyrite",
+     #homepage_url: "http://YOUR_PROJECT_HOMEPAGE",
+     docs: [extras: ["README.md", "LICENSE"]],
      deps: deps]
   end
 
@@ -22,6 +25,8 @@ defmodule Pyrite.Mixfile do
   # and cannot be accessed from applications inside the apps folder
 
   defp deps do
-    [{:credo, "~> 0.3", only: [:dev, :test]}]
+    [{:credo, "~> 0.3", only: [:dev, :test]},
+     {:earmark, "~> 0.1", only: :dev},
+     {:ex_doc, "~> 0.11", only: :dev}]
   end
 end

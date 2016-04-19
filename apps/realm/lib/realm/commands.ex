@@ -14,27 +14,37 @@ defmodule Realm.Commands do
     nothing else.
   """
 
-  alias Commons.Repo
-  alias Commons.Models.Account
+  alias Commons.Controllers.AccountController
 
   @doc """
-    Creates a new account:
+  Creates a new account:
 
-    `username`, `password` and `email` are both `Strings`
+  `username`, `password` and `email` are both `Strings`
 
-    ```create_account(username, password, email)```
+  ```create_account!(username, password, email)```
   """
-  def create_account(username, password, email) do
-    %Account{}
-    |> Account.create_account(%{username: username, password: password, email: email})
-    |> Repo.insert!
+  def create_account!(username, password, email) do
+    AccountController.create!(username, password, email)
   end
 
   @doc """
-    Shows the memory usage of the system.
+  Bans the account with `username`.
   """
-  def memory_usage do
-    "Total memory usage: #{:erlang.memory[:total] / 1000000} MB"
-  end
+  def permaban!(username), do: AccountController.ban!(username, :permanent)
+
+  @doc """
+  Suspends the account with `username` until `YYYY-MM-DD HH:MM:SS`.
+  """
+  def suspend!(username, time), do: AccountController.ban!(username, :temporary, time)
+
+  @doc """
+  Removes the ban/suspension of account with `username`.
+  """
+  def unban!(username), do: AccountController.unban!(username)
+
+  @doc """
+  Shows the memory usage of the system.
+  """
+  def memory_usage, do: "Total memory usage: #{:erlang.memory[:total] / 1000000} MB"
   
 end

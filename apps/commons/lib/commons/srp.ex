@@ -61,14 +61,16 @@ defmodule Commons.SRP do
   @doc """
     Generates a {public, private} server key pair.
   """
-  def server_public_private_key(gen, prime, ver) do
+  def server_public_private_key(ver) do
     Logger.debug "Generating a public and private key for server"
+    gen = get_generator()
+    prime = get_prime()
     {public, private} = :crypto.generate_key(:srp, {:host, [ver, gen, prime, @version]})
     case @bytes == byte_size(public) do
        true -> {public, private}
        false ->
         Logger.debug "Regenerating, public key size do not match #{@bytes}."
-        server_public_private_key(gen, prime, ver)
+        server_public_private_key(ver)
     end
   end
 
@@ -87,8 +89,9 @@ defmodule Commons.SRP do
   @doc """
     Computes the server session key.
   """
-  def compute_server_key(private_server, public_client, public_server, prime, ver) do
+  def compute_server_key(private_server, public_client, public_server, ver) do
     Logger.debug "Computing a server key."
+    prime = get_prime()
     u = get_scrambler(public_client, public_server)
     key = :crypto.compute_key(:srp,
                               public_client,
@@ -99,7 +102,7 @@ defmodule Commons.SRP do
       true -> key
       false ->
         Logger.debug "Regenerating, server key size do not match #{@bytes}."
-        compute_server_key(private_server, public_client, public_server, prime, ver)
+        compute_server_key(private_server, public_client, public_server, ver)
     end
 
   end
@@ -190,5 +193,5 @@ defmodule Commons.SRP do
     << n :: unsigned-big-integer-size(size)>> = val
     << n :: unsigned-little-integer-size(size)>>
   end
-  
+
 end
