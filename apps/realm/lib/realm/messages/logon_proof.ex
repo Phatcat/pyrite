@@ -2,8 +2,13 @@ defmodule Realm.Messages.LogonProof do
   @moduledoc """
 
   This module is responsible for handling the second step of the authentication
-  between client and server. These functions only are called if, the first step
-  of authentication was successful.
+  between client and server.
+
+  These functions only are called if, the first step of authentication was successful.
+
+  -----------------------------------------------------------------------------------
+  TODO: In this step, add support for checking WoW client version and patch handling.
+  -----------------------------------------------------------------------------------
 
   """
 
@@ -22,6 +27,7 @@ defmodule Realm.Messages.LogonProof do
   @type required_check_pass_variables :: %{account_identity: String.t,
                                            account_salt: binary,
                                            server_public_key: binary}
+  @type socket :: pid
 
 
   @spec get_proof(client_proof_message) :: %LogonProof{
@@ -99,6 +105,10 @@ defmodule Realm.Messages.LogonProof do
     end
   end
 
+  @spec send_response(%LogonProof{}, socket) :: %LogonProof{}
+  @doc """
+  Sends a message depending on the status of the `LogonProof` struct.
+  """
   def send_response(lp, socket) do
     msg = [<<@cmd_auth_logon_proof :: size(8)>>] ++ to_socket(lp.password_status, lp)
     :gen_tcp.send(socket, msg)
