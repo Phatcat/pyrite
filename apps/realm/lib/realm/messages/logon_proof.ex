@@ -14,7 +14,7 @@ defmodule Realm.Messages.LogonProof do
 
   require Logger
   use Commons.Codes.AuthCodes
-  alias Commons.SRP
+  alias Commons.{SRP, Controllers.AccountController}
   alias Realm.Messages.LogonProof
 
   defstruct [client_public_key: :nil, client_m1: :nil, session_key: :nil,
@@ -83,7 +83,7 @@ defmodule Realm.Messages.LogonProof do
     required_check_pass_variables) :: %LogonProof{}
   @doc """
   Checks if the password stored on the database is the same as the one sent
-  by the client.
+  by the client. Also saves into the database the session key.
   """
   def check_password(lp, fsv) do
     Logger.debug "Checking password"
@@ -101,6 +101,10 @@ defmodule Realm.Messages.LogonProof do
         Logger.debug "Passwords match!"
         b_m2 = SRP.m2(lp.client_public_key, server_m1, lp.session_key)
         l_m2 = SRP.from_b_to_l_endian(b_m2, 160)
+
+        Logger.debug "Saving the client session key"
+        AccountController.set_session_key(fsv.account_identity, lp.session_key)
+
         %{lp | password_status: :correct, m2: l_m2}
     end
   end

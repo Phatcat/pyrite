@@ -11,6 +11,7 @@ defmodule Commons.Models.Account do
     field :email,     :string
     field :banned_on, Ecto.DateTime
     field :banned_ex, Ecto.DateTime
+    field :session_key, :binary
 
     field :password, :string, virtual: true
 
@@ -34,12 +35,17 @@ defmodule Commons.Models.Account do
     account |> change(%{banned_on: :nil, banned_ex: :nil})
   end
 
+  def set_session_key(account, params \\ :empty) do
+    account
+    |> cast(params, ~w(session_key), ~w())
+  end
+
   def normalize_username_param(username), do: SRP.normalize_string(username)
 
   defp normalize_username(changeset) do
     caps_username = (get_field(changeset, :username) |> SRP.normalize_string())
     changeset
-    |> put_change(:username, caps_username)
+    |> change(%{username: caps_username})
     |> apply_changes()
   end
 
@@ -55,10 +61,7 @@ defmodule Commons.Models.Account do
     d_key = SRP.get_derived_key(username, password, salt)
     ver = SRP.get_verifier(gen, prime, d_key)
 
-    changeset
-    |> put_change(:salt, salt)
-    |> put_change(:verifier, ver)
-    |> put_change(:username, caps_username)
+    changeset |> change(%{salt: salt, verifier: ver, username: caps_username})
   end
   
 end

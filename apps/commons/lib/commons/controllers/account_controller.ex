@@ -15,6 +15,7 @@ defmodule Commons.Controllers.AccountController do
   @type ban_type :: :permanent | :temporary
   @type ban_status :: :banned | :suspended | :not_banned
   @type expire_datetime :: %Ecto.DateTime{}
+  @type session_key :: binary
 
 
   @spec create!(username, password, email) :: %Account{} | no_return
@@ -55,7 +56,7 @@ defmodule Commons.Controllers.AccountController do
   In case a problem occurs on updating, it will flag the account as a suspended.
   """
   def banned?(account) do
-    Logger.debug("Checking if #{Kernel.inspect(account)} is banned")
+    Logger.debug("Checking if #{Kernel.inspect(account.username)} is banned")
     if (account.banned_on != :nil) and 
        (account.banned_ex != :nil) do
       case Ecto.DateTime.compare(account.banned_on, account.banned_ex) do
@@ -108,6 +109,18 @@ defmodule Commons.Controllers.AccountController do
     Repo.get_by!(Account, username: Account.normalize_username_param(username))
     |> Account.unban_account
     |> Repo.update!
+  end
+
+  @spec set_session_key(username, session_key) :: {:ok, %Account{}} | {:error, %Account{}} | :nil | no_return
+  @doc """
+  Sets the session key that will be used by the game server to validade client credentials.
+  """
+  def set_session_key(username, session_key) do
+    case Repo.get_by(Account, username: Account.normalize_username_param(username)) do
+      :nil -> :nil
+      account ->
+        account |> Account.set_session_key(%{session_key: session_key}) |> Repo.update
+    end
   end
   
 end

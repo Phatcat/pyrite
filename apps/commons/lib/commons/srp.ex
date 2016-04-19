@@ -19,7 +19,6 @@ defmodule Commons.SRP do
   end
 
   def get_prime do
-    Logger.debug "Getting a prime number."
     <<0x894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7
         :: unsigned-big-integer-size(256)>>
   end

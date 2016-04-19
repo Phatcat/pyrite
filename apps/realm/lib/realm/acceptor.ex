@@ -2,8 +2,7 @@ defmodule Realm.Acceptor do
   use GenServer
   use Commons.Codes.AuthCodes
   require Logger
-  alias Commons.SRP
-  alias Realm.Messages.{LogonChallenge, LogonProof}
+  alias Realm.Messages.{LogonChallenge, LogonProof, RealmList}
 
   defstruct [:socket, :identity, :public_server, :private_server,
              :salt, :verifier, :public_client, :m1, :session_key]
@@ -31,13 +30,13 @@ defmodule Realm.Acceptor do
   # Receive disconnect message
   def handle_info({:tcp_closed, _socket}, state) do
     Logger.debug "TCP connection disconnected."
-    {:stop, :normal, state};
+    {:stop, :normal, state}
   end
 
   # Receive challenge.
   def handle_info({:tcp, _socket, <<@cmd_auth_logon_challenge :: size(8), msg :: binary>>}, state) do
     Logger.debug "Receiving challenge"
-    Logger.debug "Proof message #{Kernel.inspect(msg)} from #{Kernel.inspect(state.socket)}"
+    Logger.debug "Challenge message #{Kernel.inspect(msg)} from #{Kernel.inspect(state.socket)}"
     :ok = :inet.setopts(state.socket, [active: :once])
 
     lc = (LogonChallenge.get_and_check_identity(msg)
@@ -76,10 +75,18 @@ defmodule Realm.Acceptor do
     {:noreply, %{state | session_key: lp.session_key, public_client: lp.client_public_key}}
   end
 
+  # Realmlist.
   def handle_info({:tcp, _socket, <<@cmd_realm_list :: size(8), msg :: binary>>}, state) do
     Logger.debug "Receiving realmlist request"
     :ok = :inet.setopts(state.socket, [active: :once])
 
+  end
+
+
+  # THIS ABSOLUTELY NEEDS TO BE THE LAST ONE. IT'S A CATCH ALL.
+  def handle_info({:tcp, _socket, msg}, state) do
+    Logger.debug "Unknown message: #{Kernel.inspect(msg)}"
+    {:stop, :normal, state}
   end
 
   defp msg_realmlist_response do
@@ -91,29 +98,5 @@ defmodule Realm.Acceptor do
         r.name,
         r.host ++ ":" ++ Integer.to_string(r.port)>>
     ] end
-  end
-
-  defp msg_proof_response(state, client_m1, public_client, key) do
-    server_m1 = SRP.m1(state.identity,
-                       state.salt,
-                       public_client,
-                       state.public_server,
-                       key)
-    case server_m1 == client_m1 do
-      false ->
-        Logger.debug "Client has sent incorrect password."
-        [<<@cmd_auth_logon_proof        :: size(8)>>,
-         <<@wow_fail_incorrect_password :: size(8)>>]
-      true ->
-        Logger.debug "Password match!"
-        b_m2 = SRP.m2(public_client, server_m1, key)
-        l_m2 = SRP.from_b_to_l_endian(b_m2, 160)
-        [<<@cmd_auth_logon_proof :: size(8)>>,
-         <<@wow_success          :: size(8)>>,
-         l_m2,
-         <<0                     :: size(8)>>, # Flags
-         <<0                     :: size(8)>>,
-         <<0                     :: size(8)>>]
-    end
   end
 end
