@@ -159,9 +159,8 @@ defmodule Commons.SRP do
   """
   def normalize_string(val), do: String.upcase(val)
 
-  @doc """
-    Separate bytes by {odd, even}.
-  """
+
+  # Separate bytes by {odd, even}.
   defp separate_bytes(<<>>, data, _n), do: data
   defp separate_bytes(<<b :: size(8), rest :: binary>>, {odd, even}, n) do
     case rem(n, 2) == 0 do
@@ -170,11 +169,7 @@ defmodule Commons.SRP do
     end
   end
 
-  @doc """
-    Combines two hashes:
-
-    `combine_hashes(odd, even, [])`
-  """
+  # Combines two hashes (odd, even).
   defp combine_hashes(<<>>, <<>>, data), do: Enum.reverse(data)
   defp combine_hashes(<<odd  :: size(8), odd_rest  :: binary>>,
                       <<even :: size(8), even_rest :: binary>>,
