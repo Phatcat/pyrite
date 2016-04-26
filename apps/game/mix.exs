@@ -18,7 +18,17 @@ defmodule Game.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [mod: {Game, []},
+     applications: needed_apps()]
+  end
+
+  defp needed_apps() do
+    apps = [:logger]
+
+    case Mix.env do
+      :dev -> apps ++ [:exsync]
+      _ -> apps
+    end
   end
 
   # Dependencies can be Hex packages:
