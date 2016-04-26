@@ -1,4 +1,4 @@
-# Pyrite
+# Pyrite [![Build Status](https://travis-ci.org/imetallica/pyrite.svg?branch=master)](https://travis-ci.org/imetallica/pyrite)
 
 > Pyrite is an GPL v2, MMORPG emulator compatible with WoW, version 1.12.x.
 > Written in Elixir, a fast, concurrent, scalable and fault tolerant 
