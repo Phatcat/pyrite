@@ -82,7 +82,6 @@ defmodule Realm.Acceptor do
 
   end
 
-
   # THIS ABSOLUTELY NEEDS TO BE THE LAST ONE. IT'S A CATCH ALL.
   def handle_info({:tcp, _socket, msg}, state) do
     Logger.debug "Unknown message: #{Kernel.inspect(msg)}"
